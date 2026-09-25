@@ -1,0 +1,24 @@
+[project]
+name = "diagnostic-booking-service"
+version = "0.1.0"
+description = "Diagnostic test booking and simulated payment backend service"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "alembic",
+    "pydantic-settings",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "email-validator",
+    "psycopg[binary]>=3.3.6",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "httpx",
+]
