@@ -13,8 +13,8 @@ dependencies = [
     "pydantic-settings",
     "python-jose[cryptography]",
     "email-validator",
-    "psycopg[binary]>=3.3.6",
     "pwdlib[argon2]>=0.3.1",
+    "slowapi>=0.1.10",
 ]
 
 [dependency-groups]
@@ -22,3 +22,7 @@ dev = [
     "pytest",
     "httpx",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

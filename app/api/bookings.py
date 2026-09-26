@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user
 from app.db.session import get_db
+from app.services.payments import lock_booking
 from app.models.models import (
     Booking,
     BookingStatus,
@@ -73,13 +74,21 @@ def create_booking(
     response_model=list[BookingResponse],
 )
 def list_my_bookings(
+    status_filter: BookingStatus | None = Query(default=None, alias="status"),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    query = select(Booking).where(Booking.user_id == current_user.id)
+
+    if status_filter is not None:
+        query = query.where(Booking.status == status_filter)
+
     return db.scalars(
-        select(Booking)
-        .where(Booking.user_id == current_user.id)
-        .order_by(Booking.appointment_at.desc())
+        query.order_by(Booking.appointment_at.desc(), Booking.id.desc())
+        .limit(limit)
+        .offset(offset)
     ).all()
 
 
@@ -106,5 +115,42 @@ def get_booking(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to access this booking",
         )
+
+    return booking
+
+
+@router.post(
+    "/{booking_id}/cancel",
+    response_model=BookingResponse,
+)
+def cancel_booking(
+    booking_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    booking = lock_booking(db, booking_id)
+
+    if not booking:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Booking not found",
+        )
+
+    if booking.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to access this booking",
+        )
+
+    # Paid bookings would need a refund flow, which is out of scope.
+    if booking.status not in (BookingStatus.PENDING, BookingStatus.FAILED):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Booking is {booking.status.value} and cannot be cancelled",
+        )
+
+    booking.status = BookingStatus.CANCELLED
+    db.commit()
+    db.refresh(booking)
 
     return booking
