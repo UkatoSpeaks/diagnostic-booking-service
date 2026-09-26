@@ -48,8 +48,10 @@ markupsafe==3.0.3
     # via mako
 packaging==26.3
     # via limits
-psycopg2-binary==2.9.13
+psycopg==3.3.6
     # via diagnostic-booking-service
+psycopg-binary==3.3.6 ; implementation_name != 'pypy'
+    # via psycopg
 pwdlib==0.3.1
     # via diagnostic-booking-service
 pyasn1==0.6.4
@@ -92,6 +94,7 @@ typing-extensions==4.16.0
     #   anyio
     #   fastapi
     #   limits
+    #   psycopg
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
@@ -102,6 +105,8 @@ typing-inspection==0.4.4
     #   fastapi
     #   pydantic
     #   pydantic-settings
+tzdata==2026.4 ; sys_platform == 'win32'
+    # via psycopg
 uvicorn==0.54.0
     # via diagnostic-booking-service
 uvloop==0.22.1 ; platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32'

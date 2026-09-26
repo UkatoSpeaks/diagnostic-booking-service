@@ -17,7 +17,7 @@ The API is on <http://localhost:8000>; interactive docs (Swagger UI) at
 ```bash
 uv sync                       # or: pip install -r requirements.txt
 cp .env.example .env          # then edit DATABASE_URL and secrets
-createdb diagnostic_booking
+createdb diagnostic_booking        # or create the DB in pgAdmin / psql
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
@@ -26,7 +26,7 @@ uvicorn app.main:app --reload
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | SQLAlchemy URL, e.g. `postgresql://user:pass@localhost:5432/diagnostic_booking` |
+| `DATABASE_URL` | SQLAlchemy URL, e.g. `postgresql+psycopg://user:pass@localhost:5432/diagnostic_booking` |
 | `SECRET_KEY` | JWT signing key (min 16 chars) |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime, default 60 |
 | `WEBHOOK_SECRET` | Shared secret for signing webhooks (min 8 chars) |
