@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from app.api.auth import router as auth_router
 from app.db.session import engine
 from sqlalchemy import text
-
+from app.api.catalog import router as catalog_router
 
 app = FastAPI(
     title="Diagnostic Booking Service",
@@ -13,7 +13,7 @@ app = FastAPI(
 
 
 app.include_router(auth_router)
-
+app.include_router(catalog_router)
 
 @app.get("/health")
 def health_check():
